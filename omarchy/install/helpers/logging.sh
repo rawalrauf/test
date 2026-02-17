@@ -118,9 +118,8 @@ run_logged() {
 
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$OMARCHY_INSTALL_LOG_FILE"
 
-  # Use bash -c to create a clean subshell
-  bash -c "source '$script'" </dev/null >>"$OMARCHY_INSTALL_LOG_FILE" 2>&1
-
+  # Run script via 'script' to preserve TTY for live output
+  script -q -c "bash -c 'source \"$script\"'" /var/log/omarchy-install.log
   local exit_code=$?
 
   if [ $exit_code -eq 0 ]; then

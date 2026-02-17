@@ -20,12 +20,16 @@ install_arch() {
   echo
 
   touch /var/log/omarchy-install.log
-
   start_log_output
 
-  # Set CURRENT_SCRIPT for the trap to display better when nothing is returned for some reason
+  # Set CURRENT_SCRIPT for better error tracking
   CURRENT_SCRIPT="install_base_system"
-  install_base_system > >(sed -u 's/\x1b\[[0-9;]*[a-zA-Z]//g' >>/var/log/omarchy-install.log) 2>&1
+
+  # Run with live terminal output using 'script'
+  # This preserves colors and progress bars
+
+  script -q -c "install_base_system" >(sed -r 's/\x1B\[[0-9;]*[mK]//g' >>/var/log/omarchy-install.log)
+
   unset CURRENT_SCRIPT
   stop_log_output
 }
