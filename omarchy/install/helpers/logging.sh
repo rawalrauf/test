@@ -115,11 +115,10 @@ run_logged() {
   local script="$1"
 
   export CURRENT_SCRIPT="$script"
-
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$OMARCHY_INSTALL_LOG_FILE"
 
-  # Run script via 'script' to preserve TTY for live output
-  script -q -c "bash -c 'source \"$script\"'" /var/log/omarchy-install.log
+  # Run the whole script in a new shell via 'script' to get live TTY
+  script -q -c "bash '$script' run_install_base_system" /var/log/omarchy-install.log
   local exit_code=$?
 
   if [ $exit_code -eq 0 ]; then

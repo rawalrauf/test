@@ -22,13 +22,11 @@ install_arch() {
   touch /var/log/omarchy-install.log
   start_log_output
 
-  # Set CURRENT_SCRIPT for better error tracking
+  # Set CURRENT_SCRIPT for error tracking
   CURRENT_SCRIPT="install_base_system"
 
-  # Run with live terminal output using 'script'
-  # This preserves colors and progress bars
-
-  script -q -c "install_base_system" >(sed -r 's/\x1B\[[0-9;]*[mK]//g' >>/var/log/omarchy-install.log)
+  # Run the installer script itself in a new shell via 'script' with a flag
+  script -q -c "bash '$0' run_install_base_system" /var/log/omarchy-install.log
 
   unset CURRENT_SCRIPT
   stop_log_output
@@ -136,6 +134,11 @@ chroot_bash() {
     /bin/bash "$@"
 }
 
+# If called with special flag, run only the base system installer
+if [[ "${1:-}" == "run_install_base_system" ]]; then
+  install_base_system
+  exit 0
+fi
 if [[ $(tty) == "/dev/tty1" ]]; then
   use_omarchy_helpers
   run_configurator
