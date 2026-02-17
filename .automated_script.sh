@@ -22,11 +22,10 @@ install_arch() {
   touch /var/log/omarchy-install.log
   start_log_output
 
-  # Set CURRENT_SCRIPT for error tracking
   CURRENT_SCRIPT="install_base_system"
 
-  # Run the installer script itself in a new shell via 'script' with a flag
-  script -q -c "bash '$0' run_install_base_system" /var/log/omarchy-install.log
+  # Run base system with line-buffered stdout/stderr to keep it live
+  stdbuf -oL -eL install_base_system >>"$OMARCHY_INSTALL_LOG_FILE" 2>&1
 
   unset CURRENT_SCRIPT
   stop_log_output
