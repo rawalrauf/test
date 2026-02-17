@@ -66,8 +66,10 @@ install_omarchy() {
     chown -R $OMARCHY_USER:$OMARCHY_USER \"\$REPO\"
 
     # Run installer from user home safely
-    cd \"\$REPO\"
-    source install.sh || bash
+    CUR_DIR=\$(pwd)
+    cd /home/$OMARCHY_USER/
+    source lishalinux/install.sh || bash
+    cd \"\$CUR_DIR\" || exit
   "
 
   # Reboot if installer signals completion
