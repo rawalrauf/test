@@ -15,20 +15,31 @@ run_configurator() {
 }
 
 install_arch() {
+  # Clear screen and show logo at top
   clear_logo
-  gum style --foreground 3 --padding "1 0 0 $PADDING_LEFT" "Installing..."
+  gum style --foreground 3 --padding "1 0 0 $PADDING_LEFT" "Installing base system..."
   echo
 
-  touch /var/log/omarchy-install.log
-  start_log_output
+  # Ensure log file exists
+  touch "$OMARCHY_INSTALL_LOG_FILE"
+  chmod 666 "$OMARCHY_INSTALL_LOG_FILE"
+
+  # Stop any existing live log monitor to prevent collision
+  stop_log_output
 
   CURRENT_SCRIPT="install_base_system"
+  export -f install_base_system
 
-  # Run base system with line-buffered stdout/stderr to keep it live
-  stdbuf -oL -eL install_base_system >>"$OMARCHY_INSTALL_LOG_FILE" 2>&1
+  # Run base system with live output and log capture
+  bash -c 'install_base_system' 2>&1 | tee -a "$OMARCHY_INSTALL_LOG_FILE"
+  BASE_EXIT_CODE=${PIPESTATUS[0]}
 
   unset CURRENT_SCRIPT
-  stop_log_output
+
+  # Resume log monitor for post-install messages
+  start_log_output
+
+  return $BASE_EXIT_CODE
 }
 
 install_omarchy() {
@@ -133,11 +144,6 @@ chroot_bash() {
     /bin/bash "$@"
 }
 
-# If called with special flag, run only the base system installer
-if [[ "${1:-}" == "run_install_base_system" ]]; then
-  install_base_system
-  exit 0
-fi
 if [[ $(tty) == "/dev/tty1" ]]; then
   use_omarchy_helpers
   run_configurator

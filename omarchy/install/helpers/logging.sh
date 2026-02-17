@@ -117,9 +117,9 @@ run_logged() {
   export CURRENT_SCRIPT="$script"
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$OMARCHY_INSTALL_LOG_FILE"
 
-  # Run the whole script in a new shell via 'script' to get live TTY
-  script -q -c "bash '$script' run_install_base_system" /var/log/omarchy-install.log
-  local exit_code=$?
+  # Run the script with live terminal output, capture everything to log
+  bash "$script" run_install_base_system 2>&1 | tee -a "$OMARCHY_INSTALL_LOG_FILE"
+  local exit_code=${PIPESTATUS[0]}
 
   if [ $exit_code -eq 0 ]; then
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Completed: $script" >>"$OMARCHY_INSTALL_LOG_FILE"
